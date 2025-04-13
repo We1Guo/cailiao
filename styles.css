@@ -1,0 +1,492 @@
+/* 全局样式 */
+body {
+    background-color: #f8f9fa;
+    -webkit-text-size-adjust: 100%; /* 防止iOS设备自动调整文字大小 */
+}
+
+/* 导航栏样式 */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* 页面内容样式 */
+.page-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
+}
+
+/* 表格样式 */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: 4px;
+    padding: 8px 16px;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* 卡片样式 */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
+    margin-bottom: 20px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* 状态标签样式 */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.status-badge.status-pending {
+    background-color: #ffcc00;
+    color: #000;
+}
+
+.status-badge.status-in-progress {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.status-badge.status-completed {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    border-radius: 0.25rem;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+/* 材料类型图标样式 */
+.type-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 5px;
+    text-align: center;
+    line-height: 1;
+}
+
+.type-annealed {
+    background-color: #ffc107;
+    color: #000;
+    border: 1px solid #e0a800;
+}
+
+.type-cold-drawn {
+    background-color: #0d6efd;
+    color: #fff;
+    border: 1px solid #0a58ca;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.text-primary {
+    color: #0d6efd !important;
+}
+
+/* 按钮组样式优化 */
+.btn-group-sm {
+    display: inline-flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: auto !important;
+}
+
+.btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+    margin: 0 1px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+}
+
+/* 确保按钮图标在中间 */
+.btn-sm .bi {
+    font-size: 0.9rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    /* 基础布局调整 */
+    .container {
+        padding: 0 10px;
+        max-width: 100%;
+    }
+    
+    .page-content {
+        padding: 15px 10px;
+    }
+    
+    /* 表格滚动优化 */
+    .table-responsive {
+        margin-bottom: 1rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* 减小按钮大小以适应小屏幕 */
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.875rem;
+    }
+    
+    /* 导航栏在手机上的显示优化 */
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 0.7rem;
+    }
+    
+    /* 减小表格中文本大小 */
+    .table {
+        font-size: 0.85rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+    
+    /* 状态标签调整 */
+    .status-badge {
+        padding: 3px 6px;
+        font-size: 0.75rem;
+        white-space: nowrap; /* 确保状态标签文本不换行 */
+    }
+    
+    /* 卡片间距调整 */
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    .card-body {
+        padding: 15px 10px;
+    }
+    
+    /* 标题文字减小 */
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    h5.card-title {
+        font-size: 1rem;
+    }
+    
+    /* 模态框在移动端的调整 */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .modal-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 1rem;
+    }
+    
+    /* 表单控件在移动端的优化 */
+    .form-control, .form-select {
+        font-size: 16px; /* 避免iOS自动缩放 */
+        padding: 0.375rem 0.5rem;
+    }
+    
+    /* 导航布局优化 */
+    .navbar-nav {
+        width: 100%;
+    }
+    
+    /* 移动端表格布局优化 */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .btn-group-sm {
+        display: inline-flex !important;
+        width: auto !important;
+        justify-content: center !important;
+    }
+    
+    .btn-group-sm > .btn {
+        width: auto !important;
+        display: inline-flex !important;
+        margin: 0 1px !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+}
+
+/* 超小屏幕特别优化 */
+@media (max-width: 576px) {
+    /* 取消按钮垂直排列，改为水平排列 */
+    .btn-sm {
+        display: inline-flex !important;
+        width: auto !important;
+        margin: 0 1px !important;
+    }
+    
+    /* 减小按钮间距 */
+    .btn-group-sm .btn + .btn {
+        margin-left: 1px !important;
+    }
+    
+    /* 表格最小宽度设置，确保可以水平滚动 */
+    .table {
+        min-width: 480px;
+    }
+    
+    /* 页面标题进一步缩小 */
+    h2 {
+        font-size: 1.25rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* 统计图表容器高度限制，避免过大 */
+    .card .chart-container {
+        height: 220px;
+    }
+    
+    /* 优化超小屏幕上的模态框 */
+    .modal-dialog {
+        margin: 0.25rem;
+    }
+    
+    .modal-body {
+        padding: 0.75rem;
+    }
+
+    /* 确保表格内容在小屏幕上可见 */
+    .table th, .table td {
+        padding: 0.4rem;
+        vertical-align: middle;
+    }
+    
+    /* 确保按钮组水平排列 */
+    .btn-group-sm {
+        display: inline-flex !important;
+        flex-wrap: nowrap !important;
+        width: auto !important;
+        justify-content: center !important;
+    }
+    
+    /* 减小按钮内边距以节省空间 */
+    .btn-group-sm > .btn {
+        padding: 0.2rem 0.4rem !important;
+        margin: 0 1px !important;
+    }
+}
+
+/* 额外的小屏幕优化 */
+@media (max-width: 375px) {
+    .container {
+        padding: 0 5px;
+    }
+    
+    .page-content {
+        padding: 10px 5px;
+    }
+    
+    .card-body {
+        padding: 10px 8px;
+    }
+    
+    .btn {
+        padding: 5px 10px;
+    }
+}
+
+/* 模态框样式 */
+.modal-content {
+    border-radius: 8px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* 生产执行模态框剩余材料选项样式 */
+#remainingMaterialInfo {
+    background-color: rgba(255, 193, 7, 0.05);
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.form-check {
+    margin-bottom: 8px;
+}
+
+.border-top {
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.pt-3 {
+    padding-top: 1rem !important;
+}
+
+.ps-4 {
+    padding-left: 1.5rem !important;
+}
+
+.border-start {
+    border-left: 1px solid #dee2e6 !important;
+}
+
+.border-warning {
+    border-color: #ffc107 !important;
+}
+
+/* 剩余材料信息提示框样式 */
+#remainingMaterialInfo .alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    border-color: rgba(13, 202, 240, 0.2);
+    color: #055160;
+}
+
+#remainingMaterialInfo .alert-info i {
+    color: #0dcaf0;
+}
+
+.py-2 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.me-1 {
+    margin-right: 0.25rem !important;
+}
+
+/* 编辑模式样式 */
+.modal-header.edit-mode {
+    background-color: #f8f9fa;
+    border-left: 4px solid #ffc107;
+}
+
+.modal-header.edit-mode .modal-title {
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* 调整操作按钮布局 */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 576px) {
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: center;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        margin: 2px 0;
+    }
+}
+
+/* 操作按钮样式 */
+.btn-group {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-group .btn {
+    flex: 0 0 auto;
+    margin: 0 2px;
+}
+
+/* 表格操作列居中对齐 */
+td.text-center .btn-group {
+    justify-content: center;
+}
+
+/* 使表格操作按钮宽度一致 */
+.table .btn {
+    width: 38px;
+    height: 34px;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table .btn i {
+    font-size: 1rem;
+} 

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0d6efd">
+    <title>材料管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">钢管材料管理系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-page="production"><i class="bi bi-clipboard-check me-1"></i>生产计划</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="materials"><i class="bi bi-box-seam me-1"></i>材料库存</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="statistics"><i class="bi bi-bar-chart me-1"></i>数据统计</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="home-page" class="page-content d-none">
+            <h2 class="mb-4">系统概览</h2>
+            <div class="row">
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">待生产计划</h5>
+                            <p class="card-text display-4" id="pendingPlansCount">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">已完成计划</h5>
+                            <p class="card-text display-4" id="completedPlansCount">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">材料库存</h5>
+                            <p class="card-text display-4" id="materialsCount">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">余料数量</h5>
+                            <p class="card-text display-4" id="leftoverCount">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">最近生产计划</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="recentPlansTable">
+                                    <thead>
+                                        <tr>
+                                            <th>规格</th>
+                                            <th>数量(件)</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- 动态填充 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="noRecentPlans" class="text-center py-3 d-none">
+                                <p class="text-muted">暂无生产计划</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">最近材料入库</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="recentMaterialsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>规格</th>
+                                            <th>类型</th>
+                                            <th>重量(kg)</th>
+                                            <th>入库日期</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- 动态填充 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="noRecentMaterials" class="text-center py-3 d-none">
+                                <p class="text-muted">暂无入库材料</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="production-page" class="page-content">
+            <h2 class="mb-4">生产计划管理</h2>
+            <div class="alert alert-info">
+                <strong>流程说明:</strong> 先添加生产计划，然后在材料入库后可以进行生产执行。生产执行时可根据实际情况选择产品数量，不受材料根数限制。
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPlanModal">
+                        <i class="bi bi-plus-lg"></i> 添加生产计划
+                    </button>
+                </div>
+            </div>
+
+            <div class="card mb-4" id="productionCard">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">生产计划</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="me-2">按状态筛选:</label>
+                        <div class="btn-group" role="group" aria-label="状态筛选">
+                            <button type="button" class="btn btn-outline-secondary active" data-filter="all">全部</button>
+                            <button type="button" class="btn btn-outline-warning" data-filter="pending">待生产</button>
+                            <button type="button" class="btn btn-outline-info" data-filter="in-progress">进行中</button>
+                            <button type="button" class="btn btn-outline-secondary" data-filter="completed">已完成</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="productionTable">
+                            <thead>
+                                <tr>
+                                    <th>规格</th>
+                                    <th class="d-none">类型</th>
+                                    <th>数量(件)</th>
+                                    <th>已完成</th>
+                                    <th class="d-none d-md-table-cell">计划日期</th>
+                                    <th>状态</th>
+                                    <th class="text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 动态加载数据 -->
+                            </tbody>
+                        </table>
+                        <div id="noProduction" class="text-center py-3 text-muted">暂无生产计划</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="addPlanModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="planModalTitle">添加生产计划</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="planForm">
+                                <div class="mb-3">
+                                    <label for="specification" class="form-label">规格</label>
+                                    <input type="text" class="form-control" id="specification" required>
+                                    <small class="form-text text-muted">例如：42*3.5</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="planType" class="form-label">类型</label>
+                                    <select class="form-select" id="planType" required>
+                                        <option value="annealed">退火管</option>
+                                        <option value="cold-drawn">冷拔管</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="length" class="form-label">长度(mm)</label>
+                                    <input type="number" class="form-control" id="length" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="quantity" class="form-label">计划数量(件)</label>
+                                    <input type="number" class="form-control" id="quantity" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="planDate" class="form-label">计划日期</label>
+                                    <input type="date" class="form-control" id="planDate" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="savePlanBtn">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="productionModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">生产执行</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <h6>计划信息：</h6>
+                                <p id="planInfo"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="materialSelect" class="form-label">选择材料</label>
+                                <select class="form-select" id="materialSelect">
+                                    <!-- 动态填充可用材料 -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productionQuantity" class="form-label">实际生产数量</label>
+                                <input type="number" class="form-control" id="productionQuantity" value="1">
+                            </div>
+                            
+                            <!-- 剩余材料相关选项 -->
+                            <div class="mb-3 border-top pt-3">
+                                <label class="form-label">剩余材料处理</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="remainingMaterial" id="noRemainingMaterial" value="none" checked>
+                                    <label class="form-check-label" for="noRemainingMaterial">
+                                        无剩余材料
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="remainingMaterial" id="hasRemainingMaterial" value="has">
+                                    <label class="form-check-label" for="hasRemainingMaterial">
+                                        有剩余材料
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div id="remainingMaterialInfo" class="mb-3 ps-4 border-start border-warning d-none">
+                                <div class="alert alert-info py-2 mb-3">
+                                    <small><i class="bi bi-info-circle me-1"></i>下方只需填写一项即可，另一项可留空</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="remainingWeight" class="form-label">剩余材料重量(kg)</label>
+                                    <input type="number" class="form-control" id="remainingWeight" step="0.01">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="remainingQuantity" class="form-label">剩余材料根数</label>
+                                    <input type="number" class="form-control" id="remainingQuantity">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 border-top pt-3">
+                                <label class="form-label">原材料状态</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="materialStatus" id="materialUsedUp" value="used" checked>
+                                    <label class="form-check-label" for="materialUsedUp">
+                                        已用完
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="materialStatus" id="materialAvailable" value="available">
+                                    <label class="form-check-label" for="materialAvailable">
+                                        仍可使用
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="startProductionBtn">开始生产</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="materials-page" class="page-content d-none">
+            <h2 class="mb-4">材料库存管理</h2>
+            <div class="alert alert-info">
+                <strong>入库说明:</strong> 入库时只需记录规格、类型和重量，根数为选填项（用于后期统计）。入库后的材料可用于生产计划的执行。
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMaterialModal">
+                        <i class="bi bi-plus-lg"></i> 添加材料
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="me-2">按状态筛选:</label>
+                <div class="btn-group" role="group" aria-label="材料状态筛选">
+                    <button type="button" class="btn btn-outline-secondary active" data-filter-material="all">全部</button>
+                    <button type="button" class="btn btn-outline-success" data-filter-material="可使用">可使用</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter-material="已用完">已用完</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="materialsTable">
+                    <thead>
+                        <tr>
+                            <th>规格</th>
+                            <th class="d-none">类型</th>
+                            <th>根数</th>
+                            <th>重量(kg)</th>
+                            <th class="d-none d-md-table-cell">入库日期</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="noMaterials" class="text-center py-3 d-none">
+                <p class="text-muted">暂无材料，请添加</p>
+            </div>
+
+            <div class="modal fade" id="addMaterialModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="materialModalTitle">添加材料</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="materialForm">
+                                <div class="mb-3">
+                                    <label for="materialSpec" class="form-label">规格</label>
+                                    <input type="text" class="form-control" id="materialSpec" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="materialType" class="form-label">类型</label>
+                                    <select class="form-select" id="materialType" required>
+                                        <option value="annealed">退火管</option>
+                                        <option value="cold-drawn">冷拔管</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="materialQuantity" class="form-label">根数 (选填，用于统计)</label>
+                                    <input type="number" class="form-control" id="materialQuantity">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="materialWeight" class="form-label">重量(kg)</label>
+                                    <input type="number" class="form-control" id="materialWeight" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="materialDate" class="form-label">入库日期</label>
+                                    <input type="date" class="form-control" id="materialDate" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" id="saveMaterialBtn">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="statistics-page" class="page-content d-none">
+            <h2 class="mb-4">数据统计</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">待生产计划</h5>
+                            <p class="card-text display-4" id="statsPendingPlansCount">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">进行中计划</h5>
+                            <p class="card-text display-4" id="statsInProgressPlansCount">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">已完成计划</h5>
+                            <p class="card-text display-4" id="statsCompletedPlansCount">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">可使用材料</h5>
+                            <p class="card-text display-4" id="statsAvailableMaterialsCount">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">按类型统计生产总数</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <span class="type-icon type-annealed me-2">火</span>
+                                        <h6 class="card-title mb-0">退火管生产总数</h6>
+                                    </div>
+                                    <p class="card-text display-5 mt-2" id="statsAnnealedTotal">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <span class="type-icon type-cold-drawn me-2">冷</span>
+                                        <h6 class="card-title mb-0">冷拔管生产总数</h6>
+                                    </div>
+                                    <p class="card-text display-5 mt-2" id="statsColdDrawnTotal">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">生产计划详细统计</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">计划总数量</h6>
+                                    <p class="card-text h3" id="totalPlanQuantity">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">已完成数量</h6>
+                                    <p class="card-text h3" id="completedQuantity">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">待生产数量</h6>
+                                    <p class="card-text h3" id="pendingQuantity">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">进行中数量</h6>
+                                    <p class="card-text h3" id="inProgressQuantity">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">材料库存详细统计</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">可用材料总重量</h6>
+                                    <p class="card-text h3" id="availableMaterialsWeight">0 kg</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">已用材料总重量</h6>
+                                    <p class="card-text h3" id="usedMaterialsWeight">0 kg</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">待生产计划统计</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="pendingPlansTable">
+                            <thead>
+                                <tr>
+                                    <th>规格</th>
+                                    <th class="d-none">类型</th>
+                                    <th>数量(件)</th>
+                                    <th class="d-none d-md-table-cell">创建日期</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noPendingPlans" class="text-center py-3 d-none">
+                        <p class="text-muted">暂无待生产计划</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">材料库存统计</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="materialStatsTable">
+                            <thead>
+                                <tr>
+                                    <th>规格</th>
+                                    <th class="d-none">类型</th>
+                                    <th>重量(kg)</th>
+                                    <th>根数</th>
+                                    <th class="d-none d-md-table-cell">入库日期</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noMaterialStats" class="text-center py-3 d-none">
+                        <p class="text-muted">暂无材料库存</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // 阻止双击缩放
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+        
+        // 处理iOS设备上的FastClick
+        document.addEventListener('touchstart', function() {}, {passive: true});
+    </script>
+</body>
+</html> 
