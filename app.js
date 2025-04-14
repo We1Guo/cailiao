@@ -68,6 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 设置事件监听器
     setupEventListeners();
     
+    // 添加模态框关闭事件监听
+    document.getElementById('addPlanModal').addEventListener('hidden.bs.modal', function () {
+        resetPlanModal();
+    });
+    
+    document.getElementById('addMaterialModal').addEventListener('hidden.bs.modal', function () {
+        resetMaterialModal();
+    });
+    
     // 默认设置日期为今天
     setDefaultDates();
     
@@ -156,15 +165,6 @@ function setupEventListeners() {
         startProductionBtn.addEventListener('click', executeProduction);
     }
     
-    // 模态框打开时设置默认日期
-    document.getElementById('addPlanModal').addEventListener('show.bs.modal', function () {
-        setDefaultDates();
-    });
-    
-    document.getElementById('addMaterialModal').addEventListener('show.bs.modal', function () {
-        setDefaultDates();
-    });
-    
     // 添加剩余材料选项的事件监听
     document.getElementById('hasRemainingMaterial')?.addEventListener('change', function() {
         if (this.checked) {
@@ -176,6 +176,15 @@ function setupEventListeners() {
         if (this.checked) {
             document.getElementById('remainingMaterialInfo').classList.add('d-none');
         }
+    });
+
+    // 模态框打开时设置默认日期
+    document.getElementById('addPlanModal').addEventListener('show.bs.modal', function () {
+        setDefaultDates();
+    });
+    
+    document.getElementById('addMaterialModal').addEventListener('show.bs.modal', function () {
+        setDefaultDates();
     });
 
     // 生产计划状态筛选
@@ -397,21 +406,25 @@ function loadMaterials() {
             let statusBadge = '';
             if (material.status === '已用完') {
                 statusBadge = '<span class="status-badge status-completed">已用完</span>';
-            } else if (material.status === '可用') {
+            } else if (material.status === '可用' || material.status === '可使用') {
                 statusBadge = '<span class="status-badge status-pending">可使用</span>';
             } else {
-                statusBadge = '<span class="status-badge">未知</span>';
+                // 未设置状态或状态异常，默认设为可使用
+                material.status = '可使用';
+                statusBadge = '<span class="status-badge status-pending">可使用</span>';
             }
             
             // 根数显示
             const quantityDisplay = material.quantity ? material.quantity + '根' : '-';
+            // 重量显示
+            const weightDisplay = material.weight ? material.weight + 'kg' : '-';
             
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${typeIcon} ${material.specification}</td>
                 <td class="d-none">${material.type === 'annealed' ? '退火管' : '冷拔管'}</td>
                 <td>${quantityDisplay}</td>
-                <td>${material.weight}kg</td>
+                <td>${weightDisplay}</td>
                 <td class="d-none d-md-table-cell">${formatDate(material.materialDate || material.createdAt)}</td>
                 <td>${statusBadge}</td>
                 <td class="text-center">
@@ -427,6 +440,9 @@ function loadMaterials() {
             `;
             materialsTable.appendChild(row);
         });
+        
+        // 保存修正后的数据
+        localStorage.setItem('materials', JSON.stringify(materials));
         
         // 添加事件处理程序
         document.querySelectorAll('.edit-material-btn').forEach(btn => {
@@ -455,7 +471,7 @@ function loadStatistics() {
     const pendingPlans = productionPlans.filter(p => p.status === 'pending');
     const inProgressPlans = productionPlans.filter(p => p.status === 'in-progress');
     const completedPlans = productionPlans.filter(p => p.status === 'completed');
-    const availableMaterials = materials.filter(m => m.status === '可用');
+    const availableMaterials = materials.filter(m => m.status === '可使用' || m.status === '可用');
     const usedMaterials = materials.filter(m => m.status === '已用完');
     
     document.getElementById('statsPendingPlansCount').textContent = pendingPlans.length;
@@ -561,12 +577,13 @@ function loadStatistics() {
                 '<span class="type-icon type-annealed">火</span>' : 
                 '<span class="type-icon type-cold-drawn">冷</span>';
             const quantityDisplay = stats.totalQuantity > 0 ? `${stats.totalQuantity}根` : '-';
+            const weightDisplay = stats.totalWeight > 0 ? `${stats.totalWeight.toFixed(2)}kg` : '-';
             
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${typeIcon} ${stats.specification}</td>
                 <td class="d-none">${typeText}</td>
-                <td>${stats.totalWeight.toFixed(2)}</td>
+                <td>${weightDisplay}</td>
                 <td>${quantityDisplay}</td>
                 <td class="d-none d-md-table-cell">${formatDate(stats.latestDate)}</td>
             `;
@@ -647,7 +664,7 @@ function saveMaterial() {
         weight: parseFloat(weight),
         materialDate: materialDate,
         createdAt: now.toISOString(),
-        status: '可使用'  // 修改为"可使用"
+        status: '可使用'  // 确保新添加的材料默认状态为"可使用"
     };
     
     materials.unshift(newMaterial);
@@ -909,15 +926,10 @@ function editPlan(planId) {
     // 记录当前编辑的ID
     savePlanBtn.setAttribute('data-edit-id', planId);
     
-    // 修改保存按钮行为
-    const originalClickHandler = savePlanBtn.onclick;
+    // 修改保存按钮行为 - 这里是关键改动
     savePlanBtn.onclick = function() {
         const editId = parseInt(this.getAttribute('data-edit-id'));
         savePlanEdit(editId);
-        
-        // 恢复原始处理函数和按钮文本
-        savePlanBtn.onclick = originalClickHandler;
-        savePlanBtn.removeAttribute('data-edit-id');
     };
     
     // 显示模态框
@@ -947,20 +959,43 @@ function savePlanEdit(planId) {
         
         localStorage.setItem('productionPlans', JSON.stringify(productionPlans));
         
-        // 重置模态框标题和按钮文本
-        document.getElementById('planModalTitle').textContent = '添加生产计划';
-        document.getElementById('savePlanBtn').textContent = '保存';
+        // 重置模态框状态
+        resetPlanModal();
         
-        // 移除编辑模式样式
-        document.querySelector('#addPlanModal .modal-header').classList.remove('edit-mode');
-        
+        // 隐藏模态框
         addPlanModal.hide();
-        document.getElementById('planForm').reset();
         
         loadProductionPlans();
         loadDashboardData();
         
         alert('生产计划已更新');
+    }
+}
+
+// 重置生产计划模态框状态
+function resetPlanModal() {
+    // 如果模态框关闭时函数没有参数，表示可能是通过隐藏事件调用的
+    // 此时检查是否还在编辑模式，如果不是则无需操作
+    if (document.getElementById('planModalTitle').textContent !== '编辑生产计划') {
+        return;
+    }
+
+    // 重置模态框标题和按钮文本
+    document.getElementById('planModalTitle').textContent = '添加生产计划';
+    const savePlanBtn = document.getElementById('savePlanBtn');
+    savePlanBtn.textContent = '保存';
+    
+    // 移除编辑模式样式
+    document.querySelector('#addPlanModal .modal-header').classList.remove('edit-mode');
+    
+    // 恢复原始点击处理程序
+    savePlanBtn.onclick = savePlan;
+    savePlanBtn.removeAttribute('data-edit-id');
+    
+    // 重置表单（如果模态框已显示则不隐藏）
+    if (document.getElementById('addPlanModal').classList.contains('show')) {
+        document.getElementById('planForm').reset();
+        setDefaultDates();
     }
 }
 
@@ -1013,21 +1048,10 @@ function editMaterial(materialId) {
     const weightGroup = document.getElementById('materialWeight').parentNode;
     weightGroup.insertAdjacentHTML('afterend', statusHtml);
     
-    // 修改保存按钮行为
-    const originalClickHandler = saveMaterialBtn.onclick;
+    // 修改保存按钮行为 - 这里是关键改动
     saveMaterialBtn.onclick = function() {
         const editId = parseInt(this.getAttribute('data-edit-id'));
         saveMaterialEdit(editId);
-        
-        // 恢复原始处理函数
-        saveMaterialBtn.onclick = originalClickHandler;
-        saveMaterialBtn.removeAttribute('data-edit-id');
-        
-        // 移除状态选择
-        const statusGroup = document.getElementById('materialStatusGroup');
-        if (statusGroup) {
-            statusGroup.remove();
-        }
     };
     
     // 显示模态框
@@ -1055,30 +1079,53 @@ function saveMaterialEdit(materialId) {
         material.quantity = quantity ? parseInt(quantity) : null;
         material.weight = parseFloat(weight);
         material.materialDate = materialDate;
-        material.status = status;
+        material.status = status === '可用' ? '可使用' : status; // 确保使用统一的状态值
         
         localStorage.setItem('materials', JSON.stringify(materials));
         
-        // 重置模态框标题和按钮文本
-        document.getElementById('materialModalTitle').textContent = '添加材料';
-        document.getElementById('saveMaterialBtn').textContent = '保存';
+        // 重置模态框状态
+        resetMaterialModal();
         
-        // 移除编辑模式样式
-        document.querySelector('#addMaterialModal .modal-header').classList.remove('edit-mode');
-        
+        // 隐藏模态框
         addMaterialModal.hide();
-        document.getElementById('materialForm').reset();
-        
-        // 移除状态选择
-        const statusGroup = document.getElementById('materialStatusGroup');
-        if (statusGroup) {
-            statusGroup.remove();
-        }
         
         loadMaterials();
         loadDashboardData();
         
         alert('材料已更新');
+    }
+}
+
+// 重置材料模态框状态
+function resetMaterialModal() {
+    // 如果模态框关闭时函数没有参数，表示可能是通过隐藏事件调用的
+    // 此时检查是否还在编辑模式，如果不是则无需操作
+    if (document.getElementById('materialModalTitle').textContent !== '编辑材料') {
+        return;
+    }
+
+    // 重置模态框标题和按钮文本
+    document.getElementById('materialModalTitle').textContent = '添加材料';
+    const saveMaterialBtn = document.getElementById('saveMaterialBtn');
+    saveMaterialBtn.textContent = '保存';
+    
+    // 移除编辑模式样式
+    document.querySelector('#addMaterialModal .modal-header').classList.remove('edit-mode');
+    
+    // 恢复原始点击处理程序
+    saveMaterialBtn.onclick = saveMaterial;
+    saveMaterialBtn.removeAttribute('data-edit-id');
+    
+    // 移除状态选择
+    const statusGroup = document.getElementById('materialStatusGroup');
+    if (statusGroup) {
+        statusGroup.remove();
+    }
+    
+    // 重置表单（如果模态框已显示则不隐藏）
+    if (document.getElementById('addMaterialModal').classList.contains('show')) {
+        document.getElementById('materialForm').reset();
+        setDefaultDates();
     }
 }
 

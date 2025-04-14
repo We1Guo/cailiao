@@ -176,6 +176,8 @@ body {
     .table-responsive {
         margin-bottom: 1rem;
         -webkit-overflow-scrolling: touch;
+        width: 100%;
+        overflow-x: auto;
     }
     
     /* 减小按钮大小以适应小屏幕 */
@@ -201,6 +203,7 @@ body {
     .table th,
     .table td {
         padding: 0.5rem;
+        white-space: nowrap;
     }
     
     /* 状态标签调整 */
@@ -263,6 +266,7 @@ body {
         -webkit-overflow-scrolling: touch;
     }
     
+    /* 操作按钮优化 */
     .btn-group-sm {
         display: inline-flex !important;
         width: auto !important;
@@ -275,25 +279,45 @@ body {
         margin: 0 1px !important;
         padding: 0.25rem 0.5rem !important;
     }
+
+    /* 优化表格列显示 */
+    .table tbody td:nth-child(1) {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 /* 超小屏幕特别优化 */
 @media (max-width: 576px) {
-    /* 取消按钮垂直排列，改为水平排列 */
-    .btn-sm {
-        display: inline-flex !important;
-        width: auto !important;
-        margin: 0 1px !important;
+    /* 取消一些不必要的列，或改变显示方式 */
+    .table.table-responsive {
+        display: block;
+        width: 100%;
     }
     
-    /* 减小按钮间距 */
-    .btn-group-sm .btn + .btn {
-        margin-left: 1px !important;
+    /* 减小表格内边距，节省空间 */
+    .table th, .table td {
+        padding: 0.4rem;
+        vertical-align: middle;
+        font-size: 0.8rem;
     }
     
-    /* 表格最小宽度设置，确保可以水平滚动 */
-    .table {
-        min-width: 480px;
+    /* 优化表格按钮组 */
+    .btn-group-sm > .btn {
+        padding: 0.2rem 0.3rem !important;
+        font-size: 0.75rem;
+    }
+    
+    /* 强制表格内容不折行，保证每行单元格内容都能显示 */
+    .table td {
+        white-space: nowrap;
+    }
+    
+    /* 表格头部样式优化 */
+    .table thead th {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.3rem;
     }
     
     /* 页面标题进一步缩小 */
@@ -302,38 +326,23 @@ body {
         margin-top: 0.5rem;
     }
     
-    /* 统计图表容器高度限制，避免过大 */
-    .card .chart-container {
-        height: 220px;
+    /* 状态筛选按钮优化 */
+    .btn-group[role="group"] .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
     }
     
-    /* 优化超小屏幕上的模态框 */
-    .modal-dialog {
-        margin: 0.25rem;
+    /* 状态标签进一步缩小 */
+    .status-badge {
+        padding: 2px 5px;
+        font-size: 0.7rem;
     }
     
-    .modal-body {
-        padding: 0.75rem;
-    }
-
-    /* 确保表格内容在小屏幕上可见 */
-    .table th, .table td {
-        padding: 0.4rem;
-        vertical-align: middle;
-    }
-    
-    /* 确保按钮组水平排列 */
-    .btn-group-sm {
-        display: inline-flex !important;
-        flex-wrap: nowrap !important;
-        width: auto !important;
-        justify-content: center !important;
-    }
-    
-    /* 减小按钮内边距以节省空间 */
-    .btn-group-sm > .btn {
-        padding: 0.2rem 0.4rem !important;
-        margin: 0 1px !important;
+    /* 表格中的图标大小减小 */
+    .type-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
     }
 }
 
@@ -348,11 +357,36 @@ body {
     }
     
     .card-body {
-        padding: 10px 8px;
+        padding: 10px 5px;
     }
     
     .btn {
-        padding: 5px 10px;
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+    
+    /* 表格进一步压缩 */
+    .table th, .table td {
+        padding: 0.3rem 0.2rem;
+        font-size: 0.7rem;
+    }
+    
+    /* 极小按钮 */
+    .btn-group-sm > .btn {
+        padding: 0.15rem 0.25rem !important;
+        font-size: 0.7rem;
+    }
+    
+    /* 操作列按钮最小化 */
+    .table .btn {
+        width: 28px;
+        height: 28px;
+    }
+    
+    /* 状态标签最小尺寸 */
+    .status-badge {
+        padding: 1px 4px;
+        font-size: 0.65rem;
     }
 }
 
